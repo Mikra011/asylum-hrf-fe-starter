@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import testData from '../data/test_data.json';
 import { useLocalStorage } from '../hooks/useLocalStorage.js';
 
 const AppContext = createContext({});
+// would be better in env file, however for the sake of this exercise we can leave it here
+const API_BASE_URL = 'https://asylum-be.onrender.com';
 
 /**
  * TODO: Ticket 2:
@@ -12,21 +13,31 @@ const AppContext = createContext({});
  * - Populate the graphs with the stored data
  */
 const useAppContextProvider = () => {
-  const [graphData, setGraphData] = useState(testData);
+  const [graphData, setGraphData] = useState({});
   const [isDataLoading, setIsDataLoading] = useState(false);
 
   useLocalStorage({ graphData, setGraphData });
 
-  const getFiscalData = () => {
+  const getFiscalData = async () => {
     // TODO: Replace this with functionality to retrieve the data from the fiscalSummary endpoint
-    const fiscalDataRes = testData;
-    return fiscalDataRes;
+    try {
+      const response = await axios.get(`${API_BASE_URL}/fiscalSummary`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching fiscal data:', error);
+      return {};
+    }
   };
 
   const getCitizenshipResults = async () => {
     // TODO: Replace this with functionality to retrieve the data from the citizenshipSummary endpoint
-    const citizenshipRes = testData.citizenshipResults;
-    return citizenshipRes;
+    try {
+      const response = await axios.get(`${API_BASE_URL}/citizenshipSummary`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching citizenship results:', error);
+      return [];
+    }
   };
 
   const updateQuery = async () => {
@@ -35,6 +46,23 @@ const useAppContextProvider = () => {
 
   const fetchData = async () => {
     // TODO: fetch all the required data and set it to the graphData state
+    try {
+      const [fiscalData, citizenshipData] = await Promise.all([
+        getFiscalData(),
+        getCitizenshipResults(),
+      ]);
+
+      const combinedData = {
+        ...fiscalData,
+        citizenshipResults: citizenshipData,
+      };
+
+      setGraphData(combinedData);
+    } catch (error) {
+      console.error('Error fetching combined data:', error);
+    } finally {
+      setIsDataLoading(false);
+    }
   };
 
   const clearQuery = () => {

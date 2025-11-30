@@ -30,7 +30,7 @@ export const LandingPage = () => {
   };
 
   const handleViewData = () => {
-    navigate('/data');
+    navigate('/graphs');
   };
 
   return (

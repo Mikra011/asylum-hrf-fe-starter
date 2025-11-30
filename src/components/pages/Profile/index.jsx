@@ -44,7 +44,6 @@ const Profile = () => {
   };
 
   return (
-    <div className='flex items-center justify-center min-h-screen bg-gray-100 py-10'>
       <div className='max-w-sm mx-auto mt-10 bg-white rounded-lg shadow-lg p-6 text-center'>
         {user.picture && (
           <img
@@ -62,7 +61,6 @@ const Profile = () => {
           Logout
         </button>
       </div>
-    </div>
   );
 };
 
